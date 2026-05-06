@@ -1,15 +1,42 @@
-<footer class="site-footer">
-    <div class="container d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-center">
-        <div class="text-muted small">© 2026 PhishGuard. AI-powered phishing protection experience.</div>
-        <div class="d-flex gap-3 small">
-            <a href="{{ url_for('main.landing') }}#features">Features</a>
-            <a href="{{ url_for('main.landing') }}#metrics">Metrics</a>
-            <a href="{{ url_for('main.landing') }}#contact">Contact</a>
-            {% if session.get('user_id') %}
-            <a href="{{ url_for('main.scan') }}">Scan</a>
-            {% else %}
-            <a href="{{ url_for('auth.login') }}">Login</a>
-            {% endif %}
+<footer class="dark-footer py-5">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-md-4">
+                <div class="footer-brand d-flex align-items-start gap-3">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="PhishGuard" class="footer-logo">
+                    <div>
+                        <h5 class="mb-2 text-white">PhishGuard</h5>
+                        <p class="text-white-60 mb-0">AI-driven phishing detection that keeps your team protected with clear insights, scalable monitoring, and secure review workflows.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h6 class="footer-heading text-white">Quick links</h6>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('main.landing') }}#features">Features</a></li>
+                    <li><a href="{{ url_for('main.landing') }}#metrics">Model</a></li>
+                    <li><a href="{{ url_for('main.landing') }}#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6 class="footer-heading text-white">Platform</h6>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                    <li><a href="{{ url_for('auth.register') }}">Get Started</a></li>
+                    <li><a href="{{ url_for('main.landing') }}#features">Analytics</a></li>
+                </ul>
+            </div>
+            <div class="col-md-2">
+                <h6 class="footer-heading text-white">Follow</h6>
+                <div class="footer-social d-flex gap-3 mt-2">
+                    <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" aria-label="GitHub"><i class="bi bi-github"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom text-center text-white-50 mt-4 pt-4 border-top border-white-10">
+            © 2026 PhishGuard. All rights reserved.
         </div>
     </div>
 </footer>

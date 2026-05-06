@@ -16,7 +16,7 @@
                 <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.history' %}active{% endif %}" href="{{ url_for('main.history') }}">History</a></li>
                 <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.analytics' %}active{% endif %}" href="{{ url_for('main.analytics') }}">Analytics</a></li>
                 {% if session.get('role') == 'admin' %}
-                <li class="nav-item"><a class="nav-link {% if request.endpoint.startswith('main.admin') %}active{% endif %}" href="{{ url_for('main.admin_overview') }}">Admin</a></li>
+                <li class="nav-item"><a class="nav-link {% if request.endpoint.startswith('main.admin') %}active{% endif %}" href="{{ url_for('main.admin_overview') }}">Admin Center</a></li>
                 {% endif %}
             </ul>
             <div class="d-flex align-items-center gap-3">

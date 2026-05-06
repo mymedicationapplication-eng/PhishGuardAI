@@ -1,9 +1,8 @@
 (function () {
     const data = window.PHISHGUARD_ANALYTICS;
-    if (!data) return;
 
     const activityCanvas = document.getElementById("activityChart");
-    if (activityCanvas) {
+    if (activityCanvas && data) {
         new Chart(activityCanvas, {
             type: "line",
             data: {
@@ -28,7 +27,7 @@
     }
 
     const riskCanvas = document.getElementById("riskChart");
-    if (riskCanvas) {
+    if (riskCanvas && data) {
         new Chart(riskCanvas, {
             type: "doughnut",
             data: {
@@ -46,19 +45,89 @@
         });
     }
 
-    document.querySelectorAll('.toggle-password').forEach(button => {
-        button.addEventListener('click', () => {
-            const group = button.closest('.input-group');
-            const input = group ? group.querySelector('.password-input') : null;
+    document.querySelectorAll('.password-toggle-icon').forEach(icon => {
+        icon.addEventListener('click', () => {
+            const wrapper = icon.closest('.position-relative');
+            const input = wrapper ? wrapper.querySelector('.password-input') : null;
             if (!input) return;
             const isHidden = input.type === 'password';
             input.type = isHidden ? 'text' : 'password';
-            const icon = button.querySelector('i');
-            if (icon) {
-                icon.classList.toggle('bi-eye');
-                icon.classList.toggle('bi-eye-slash');
+            const iconEl = icon.querySelector('i');
+            if (iconEl) {
+                iconEl.classList.toggle('bi-eye');
+                iconEl.classList.toggle('bi-eye-slash');
             }
-            button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            icon.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+        });
+    });
+
+    function setFieldError(input, message) {
+        let wrapper = input.parentElement;
+        while (wrapper && !wrapper.querySelector('.invalid-feedback')) {
+            wrapper = wrapper.parentElement;
+        }
+        const feedback = wrapper ? wrapper.querySelector('.invalid-feedback') : null;
+        if (message) {
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+            if (feedback) {
+                feedback.textContent = message;
+            }
+        } else {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            if (feedback) {
+                feedback.textContent = '';
+            }
+        }
+    }
+
+    function validateInputField(input) {
+        const value = input.value.trim();
+        if (!value) {
+            return 'This field is required.';
+        }
+        if (input.type === 'email') {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                return 'Enter a valid email address.';
+            }
+        }
+        if (input.name === 'password') {
+            if (value.length < 8) {
+                return 'Use at least 8 characters for your password.';
+            }
+        }
+        if (input.name === 'confirm_password') {
+            const form = input.closest('form');
+            const passwordField = form ? form.querySelector('[name="password"]') : null;
+            if (passwordField && value !== passwordField.value.trim()) {
+                return 'Passwords must match.';
+            }
+        }
+        return '';
+    }
+
+    document.querySelectorAll('.auth-validate-form').forEach(form => {
+        const inputs = Array.from(form.querySelectorAll('input'));
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                setFieldError(input, validateInputField(input));
+            });
+        });
+
+        form.addEventListener('submit', event => {
+            let formIsValid = true;
+            inputs.forEach(input => {
+                const message = validateInputField(input);
+                setFieldError(input, message);
+                if (message) {
+                    formIsValid = false;
+                }
+            });
+            if (!formIsValid) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
         });
     });
 })();
