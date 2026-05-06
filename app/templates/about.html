@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}About Us | PhishGuard{% endblock %}
+{% block content %}
+<section class="section-pad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-5">
+                    <span class="eyebrow-badge">About PhishGuard</span>
+                    <h1 class="display-5 fw-bold mt-3">Protecting organizations from phishing threats with intelligent AI detection</h1>
+                    <p class="lead text-muted mt-3">PhishGuard is a comprehensive phishing detection platform that combines advanced machine learning with intuitive user experience to safeguard your communications.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-5 align-items-center mb-5">
+            <div class="col-lg-6">
+                <div class="hero-visual-card">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" class="hero-logo" alt="PhishGuard Logo">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <h2 class="mb-4">Our Mission</h2>
+                <p class="text-muted mb-3">We believe that cybersecurity should be accessible, transparent, and effective. PhishGuard was built to empower organizations of all sizes with enterprise-grade phishing detection capabilities.</p>
+                <p class="text-muted mb-3">Our platform leverages state-of-the-art natural language processing and machine learning algorithms to identify phishing attempts in real-time, providing actionable insights that help security teams respond quickly and confidently.</p>
+                <p class="text-muted">With PhishGuard, you gain not just a detection tool, but a complete security workflow that includes audit trails, analytics, and administrative oversight.</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="feature-card h-100 text-center">
+                    <div class="feature-icon mx-auto"><i class="bi bi-shield-check"></i></div>
+                    <h4 class="mt-3">Security First</h4>
+                    <p class="text-muted">Built with enterprise security standards, including encrypted data storage, role-based access control, and comprehensive audit logging.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card h-100 text-center">
+                    <div class="feature-icon mx-auto"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h4 class="mt-3">Proven Accuracy</h4>
+                    <p class="text-muted">Our TF-IDF and Logistic Regression model delivers high precision and recall rates, minimizing false positives while catching real threats.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card h-100 text-center">
+                    <div class="feature-icon mx-auto"><i class="bi bi-people-fill"></i></div>
+                    <h4 class="mt-3">User Focused</h4>
+                    <p class="text-muted">Designed for both security professionals and end users, with intuitive interfaces and clear, actionable recommendations.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="p-5 rounded-3 bg-light">
+                    <h3 class="mb-3">Why Choose PhishGuard?</h3>
+                    <p class="text-muted mb-4">PhishGuard combines cutting-edge AI technology with practical security workflows. Our platform provides real-time detection, comprehensive analytics, and full administrative control-all in one unified solution.</p>
+                    <div class="d-flex flex-wrap gap-3 justify-content-center">
+                        <a href="{{ url_for('main.features') }}" class="btn btn-primary rounded-pill px-4">Explore Features</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary rounded-pill px-4">Get Started Free</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

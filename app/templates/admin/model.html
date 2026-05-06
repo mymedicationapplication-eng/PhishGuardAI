@@ -1,44 +1,108 @@
 {% extends "base.html" %}
-{% block title %}Admin Model Center | PhishGuard{% endblock %}
+{% block title %}Model Center | PhishGuard{% endblock %}
 {% block content %}
 <div class="container pb-5">
     <div class="page-header">
         <div>
             <span class="eyebrow-badge">Administration</span>
-            <h1 class="mt-3">Model Center</h1>
-            <p class="text-muted">Review the integrated model artifact information and the saved evaluation metrics.</p>
+            <h1 class="mt-2 mb-2">Model Center</h1>
+            <p class="text-muted mb-0">AI model performance metrics and training information</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('main.admin_overview') }}" class="btn btn-outline-primary rounded-pill px-3"><i class="bi bi-arrow-left me-2"></i>Back</a>
+            <span class="badge bg-success" style="padding: .75rem 1.25rem; font-size: .95rem;"><i class="bi bi-check-circle me-2"></i>Production Model Active</span>
         </div>
     </div>
-    <div class="row g-4 mb-4">
-        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Accuracy</span><strong>{{ "%.2f"|format((metrics.accuracy or 0) * 100) }}%</strong></div></div>
-        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Precision</span><strong>{{ "%.2f"|format((metrics.precision or 0) * 100) }}%</strong></div></div>
-        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Recall</span><strong>{{ "%.2f"|format((metrics.recall or 0) * 100) }}%</strong></div></div>
-        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>ROC-AUC</span><strong>{{ "%.2f"|format((metrics.roc_auc or 0) * 100) }}%</strong></div></div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="d-block text-muted mb-1" style="font-size: .85rem;">Accuracy</span>
+                        <strong class="d-block" style="font-size: 1.75rem; line-height: 1;">{{ "%.1f"|format((metrics.accuracy or 0) * 100) }}%</strong>
+                    </div>
+                    <div class="feature-icon" style="width: 42px; height: 42px; font-size: 1.1rem; background: rgba(18,171,100,.12);"><i class="bi bi-check-circle-fill" style="color: #0a8050;"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="d-block text-muted mb-1" style="font-size: .85rem;">Precision</span>
+                        <strong class="d-block" style="font-size: 1.75rem; line-height: 1;">{{ "%.1f"|format((metrics.precision or 0) * 100) }}%</strong>
+                    </div>
+                    <div class="feature-icon" style="width: 42px; height: 42px; font-size: 1.1rem;"><i class="bi bi-bullseye"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="d-block text-muted mb-1" style="font-size: .85rem;">Recall</span>
+                        <strong class="d-block" style="font-size: 1.75rem; line-height: 1;">{{ "%.1f"|format((metrics.recall or 0) * 100) }}%</strong>
+                    </div>
+                    <div class="feature-icon" style="width: 42px; height: 42px; font-size: 1.1rem;"><i class="bi bi-search"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="d-block text-muted mb-1" style="font-size: .85rem;">ROC-AUC</span>
+                        <strong class="d-block" style="font-size: 1.75rem; line-height: 1;">{{ "%.1f"|format((metrics.roc_auc or 0) * 100) }}%</strong>
+                    </div>
+                    <div class="feature-icon" style="width: 42px; height: 42px; font-size: 1.1rem;"><i class="bi bi-graph-up"></i></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4">
         <div class="col-xl-7">
             <div class="card shell-card h-100">
                 <div class="card-body p-4">
-                    <h5 class="mb-3">Training records</h5>
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead><tr><th>Model</th><th>Train Size</th><th>Test Size</th><th>Total</th><th>Trained At</th></tr></thead>
-                            <tbody>
-                            {% for row in training %}
-                                <tr>
-                                    <td>{{ row.model_type }}</td>
-                                    <td>{{ row.train_size }}</td>
-                                    <td>{{ row.test_size }}</td>
-                                    <td>{{ row.total_records }}</td>
-                                    <td>{{ row.trained_at }}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                    <h5 class="mb-3"><i class="bi bi-database me-2"></i>Training Information</h5>
+                    <div class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 rounded" style="background: rgba(24,180,191,.08);">
+                                    <span class="d-block text-muted small mb-1">Model Type</span>
+                                    <strong>{{ metrics.model_type or "N/A" }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded" style="background: rgba(24,180,191,.08);">
+                                    <span class="d-block text-muted small mb-1">Trained At</span>
+                                    <strong>{{ metrics.trained_at or "N/A" }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded" style="background: rgba(24,180,191,.08);">
+                                    <span class="d-block text-muted small mb-1">Training Records</span>
+                                    <strong>{{ "{:,}".format(metrics.train_size or 0) }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded" style="background: rgba(24,180,191,.08);">
+                                    <span class="d-block text-muted small mb-1">Test Records</span>
+                                    <strong>{{ "{:,}".format(metrics.test_size or 0) }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded" style="background: rgba(24,180,191,.08);">
+                                    <span class="d-block text-muted small mb-1">Total Records</span>
+                                    <strong>{{ "{:,}".format(metrics.total_records or 0) }}</strong>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="alert alert-info border-0 mt-3 mb-0">
-                        To replace the model later, swap the files in the <code>artifacts/</code> folder and restart the application.
+                    <div class="alert alert-info border-0 mb-0" style="background: rgba(24,180,191,.08);">
+                        <strong><i class="bi bi-info-circle me-2"></i>Model Management</strong>
+                        <p class="mb-0 mt-2 small">To update the model, replace files in <code>artifacts/</code> folder and restart the application. Ensure scikit-learn version compatibility.</p>
                     </div>
                 </div>
             </div>
@@ -46,18 +110,24 @@
         <div class="col-xl-5">
             <div class="card shell-card h-100">
                 <div class="card-body p-4">
-                    <h5 class="mb-3">Confusion matrix</h5>
+                    <h5 class="mb-3"><i class="bi bi-grid-3x3 me-2"></i>Confusion Matrix</h5>
                     {% set matrix = metrics.confusion_matrix or [[0,0],[0,0]] %}
                     <div class="matrix-grid">
                         <div class="matrix-cell header-cell"></div>
-                        <div class="matrix-cell header-cell">Pred. Legitimate</div>
-                        <div class="matrix-cell header-cell">Pred. Phishing</div>
-                        <div class="matrix-cell header-cell">Actual Legitimate</div>
-                        <div class="matrix-cell">{{ matrix[0][0] }}</div>
-                        <div class="matrix-cell">{{ matrix[0][1] }}</div>
-                        <div class="matrix-cell header-cell">Actual Phishing</div>
-                        <div class="matrix-cell">{{ matrix[1][0] }}</div>
-                        <div class="matrix-cell">{{ matrix[1][1] }}</div>
+                        <div class="matrix-cell header-cell">Pred. Legit</div>
+                        <div class="matrix-cell header-cell">Pred. Phish</div>
+                        <div class="matrix-cell header-cell">Actual Legit</div>
+                        <div class="matrix-cell" style="background: rgba(18,171,100,.15); font-size: 1.25rem;"><strong>{{ "{:,}".format(matrix[0][0]) }}</strong></div>
+                        <div class="matrix-cell" style="background: rgba(214,52,52,.15); font-size: 1.25rem;"><strong>{{ "{:,}".format(matrix[0][1]) }}</strong></div>
+                        <div class="matrix-cell header-cell">Actual Phish</div>
+                        <div class="matrix-cell" style="background: rgba(214,52,52,.15); font-size: 1.25rem;"><strong>{{ "{:,}".format(matrix[1][0]) }}</strong></div>
+                        <div class="matrix-cell" style="background: rgba(18,171,100,.15); font-size: 1.25rem;"><strong>{{ "{:,}".format(matrix[1][1]) }}</strong></div>
+                    </div>
+                    <div class="mt-3 small text-muted">
+                        <p class="mb-1"><strong>True Positives:</strong> {{ "{:,}".format(matrix[1][1]) }} (Correctly identified phishing)</p>
+                        <p class="mb-1"><strong>True Negatives:</strong> {{ "{:,}".format(matrix[0][0]) }} (Correctly identified legitimate)</p>
+                        <p class="mb-1"><strong>False Positives:</strong> {{ "{:,}".format(matrix[0][1]) }} (Legitimate marked as phishing)</p>
+                        <p class="mb-0"><strong>False Negatives:</strong> {{ "{:,}".format(matrix[1][0]) }} (Phishing marked as legitimate)</p>
                     </div>
                 </div>
             </div>

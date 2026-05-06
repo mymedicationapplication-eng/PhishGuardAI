@@ -108,28 +108,52 @@ def execute(query, params=()):
 
 def seed_default_admin():
     from .text_utils import utc_now_iso
-    existing = query_one("SELECT id FROM users WHERE email = ?", ("admin@phishguard.local",))
-    if existing:
-        return
-    salt, hashed = pbkdf2_hash("Admin@12345")
-    execute(
-        """
-        INSERT INTO users (full_name, email, password_hash, password_salt, role, institution, bio, is_active, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            "PhishGuard Administrator",
-            "admin@phishguard.local",
-            hashed,
-            salt,
-            "admin",
-            "PhishGuard Security",
-            "System administrator account.",
-            1,
-            utc_now_iso(),
-        ),
-    )
-    log_action(None, "seed_admin", "user", "info", "Default admin account created.")
+    
+    # Create default admin user
+    existing_admin = query_one("SELECT id FROM users WHERE email = ?", ("admin@gmail.com",))
+    if not existing_admin:
+        salt, hashed = pbkdf2_hash("Admin@1234")
+        execute(
+            """
+            INSERT INTO users (full_name, email, password_hash, password_salt, role, institution, bio, is_active, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "PhishGuard Administrator",
+                "admin@gmail.com",
+                hashed,
+                salt,
+                "admin",
+                "PhishGuard Security",
+                "System administrator account.",
+                1,
+                utc_now_iso(),
+            ),
+        )
+        log_action(None, "seed_admin", "user", "info", "Default admin account created.")
+    
+    # Create default regular user
+    existing_user = query_one("SELECT id FROM users WHERE email = ?", ("Fatimahali@gmail.com",))
+    if not existing_user:
+        salt, hashed = pbkdf2_hash("Fatimahali@1234")
+        execute(
+            """
+            INSERT INTO users (full_name, email, password_hash, password_salt, role, institution, bio, is_active, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "Fatimah Ali",
+                "Fatimahali@gmail.com",
+                hashed,
+                salt,
+                "user",
+                "PhishGuard",
+                "Default user account.",
+                1,
+                utc_now_iso(),
+            ),
+        )
+        log_action(None, "seed_user", "user", "info", "Default user account created.")
 
 def seed_training_run():
     metrics = get_metrics()

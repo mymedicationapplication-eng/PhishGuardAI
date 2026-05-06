@@ -3,7 +3,9 @@
         <div class="row gy-4">
             <div class="col-md-4">
                 <div class="footer-brand d-flex align-items-start gap-3">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="PhishGuard" class="footer-logo">
+                    <div class="footer-logo-container">
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="PhishGuard" class="footer-logo">
+                    </div>
                     <div>
                         <h5 class="mb-2 text-white">PhishGuard</h5>
                         <p class="text-white-60 mb-0">AI-driven phishing detection that keeps your team protected with clear insights, scalable monitoring, and secure review workflows.</p>

@@ -4,21 +4,61 @@
 <div class="container pb-5">
     <div class="page-header">
         <div>
-            <span class="eyebrow-badge">Workspace overview</span>
-            <h1 class="mt-3">Dashboard</h1>
-            <p class="text-muted">Review your recent phishing detection activity and jump into the main workflows.</p>
+            <span class="eyebrow-badge">Workspace Overview</span>
+            <h1 class="mt-2 mb-2">Dashboard</h1>
+            <p class="text-muted mb-0">Monitor your phishing detection activity and access key workflows</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ url_for('main.scan') }}" class="btn btn-primary rounded-pill px-4">Scan Message</a>
-            <a href="{{ url_for('main.batch') }}" class="btn btn-outline-primary rounded-pill px-4">Batch Upload</a>
+            <a href="{{ url_for('main.scan') }}" class="btn btn-primary rounded-pill px-4"><i class="bi bi-shield-check me-2"></i>Scan Message</a>
+            <a href="{{ url_for('main.batch') }}" class="btn btn-outline-primary rounded-pill px-4"><i class="bi bi-cloud-upload me-2"></i>Batch Upload</a>
         </div>
     </div>
 
-    <div class="row g-4 mb-4">
-        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Total Scans</span><strong>{{ stats.total_scans or 0 }}</strong></div></div>
-        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Phishing Detected</span><strong>{{ stats.phishing_count or 0 }}</strong></div></div>
-        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Legitimate</span><strong>{{ stats.legitimate_count or 0 }}</strong></div></div>
-        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>High Risk</span><strong>{{ stats.high_risk_count or 0 }}</strong></div></div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="d-block text-muted mb-1" style="font-size: .85rem;">Total Scans</span>
+                        <strong class="d-block" style="font-size: 1.75rem; line-height: 1;">{{ stats.total_scans or 0 }}</strong>
+                    </div>
+                    <div class="feature-icon" style="width: 42px; height: 42px; font-size: 1.1rem;"><i class="bi bi-graph-up"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="d-block text-muted mb-1" style="font-size: .85rem;">Phishing Detected</span>
+                        <strong class="d-block text-danger" style="font-size: 1.75rem; line-height: 1;">{{ stats.phishing_count or 0 }}</strong>
+                    </div>
+                    <div class="feature-icon" style="width: 42px; height: 42px; font-size: 1.1rem; background: rgba(214,52,52,.12);"><i class="bi bi-exclamation-triangle-fill" style="color: #b72e2e;"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="d-block text-muted mb-1" style="font-size: .85rem;">Legitimate</span>
+                        <strong class="d-block text-success" style="font-size: 1.75rem; line-height: 1;">{{ stats.legitimate_count or 0 }}</strong>
+                    </div>
+                    <div class="feature-icon" style="width: 42px; height: 42px; font-size: 1.1rem; background: rgba(18,171,100,.12);"><i class="bi bi-check-circle-fill" style="color: #0a8050;"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="d-block text-muted mb-1" style="font-size: .85rem;">High Risk</span>
+                        <strong class="d-block" style="font-size: 1.75rem; line-height: 1; color: #b72e2e;">{{ stats.high_risk_count or 0 }}</strong>
+                    </div>
+                    <div class="feature-icon" style="width: 42px; height: 42px; font-size: 1.1rem; background: rgba(214,52,52,.12);"><i class="bi bi-shield-fill-exclamation" style="color: #b72e2e;"></i></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4">
@@ -26,29 +66,29 @@
             <div class="card shell-card h-100">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">Recent scans</h5>
-                        <a href="{{ url_for('main.history') }}" class="small">View all</a>
+                        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Scans</h5>
+                        <a href="{{ url_for('main.history') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">View All</a>
                     </div>
                     {% if recent_scans %}
                     <div class="table-responsive">
-                        <table class="table align-middle">
+                        <table class="table align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>Message</th>
-                                    <th>Result</th>
-                                    <th>Risk</th>
-                                    <th>Confidence</th>
-                                    <th>Date</th>
+                                    <th style="font-size: .85rem;">Message</th>
+                                    <th style="font-size: .85rem;">Result</th>
+                                    <th style="font-size: .85rem;">Risk</th>
+                                    <th style="font-size: .85rem;">Confidence</th>
+                                    <th style="font-size: .85rem;">Date</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for row in recent_scans %}
                                 <tr>
-                                    <td class="truncate-cell">{{ row.original_message }}</td>
+                                    <td class="truncate-cell" style="max-width: 300px;">{{ row.original_message }}</td>
                                     <td><span class="status-pill {{ 'high' if row.prediction_label == 'Phishing' else 'safe' }}">{{ row.prediction_label }}</span></td>
-                                    <td>{{ row.risk_level }}</td>
-                                    <td>{{ "%.2f"|format(row.confidence) }}%</td>
-                                    <td>{{ row.created_at }}</td>
+                                    <td><span class="status-pill {{ row.risk_level|lower }}">{{ row.risk_level }}</span></td>
+                                    <td><strong>{{ "%.1f"|format(row.confidence) }}%</strong></td>
+                                    <td class="text-muted" style="font-size: .85rem;">{{ row.created_at[:16] }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -56,9 +96,9 @@
                     </div>
                     {% else %}
                     <div class="empty-state">
-                        <i class="bi bi-inboxes"></i>
-                        <h6>No scans yet</h6>
-                        <p class="text-muted">Run your first scan to populate the dashboard.</p>
+                        <i class="bi bi-inbox"></i>
+                        <h6 class="mt-2">No scans yet</h6>
+                        <p class="text-muted mb-0">Run your first scan to populate the dashboard</p>
                     </div>
                     {% endif %}
                 </div>
@@ -67,23 +107,35 @@
         <div class="col-xl-4">
             <div class="card shell-card h-100">
                 <div class="card-body p-4">
-                    <h5 class="mb-3">Quick actions</h5>
+                    <h5 class="mb-3"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
                     <div class="quick-action-list">
                         <a href="{{ url_for('main.scan') }}" class="quick-action">
-                            <div><strong>Scan message</strong><span>Analyze one suspicious message now.</span></div>
-                            <i class="bi bi-arrow-up-right"></i>
+                            <div>
+                                <strong>Scan Message</strong>
+                                <span>Analyze suspicious content instantly</span>
+                            </div>
+                            <i class="bi bi-arrow-right"></i>
                         </a>
                         <a href="{{ url_for('main.batch') }}" class="quick-action">
-                            <div><strong>Batch analysis</strong><span>Upload a list of messages.</span></div>
-                            <i class="bi bi-arrow-up-right"></i>
+                            <div>
+                                <strong>Batch Analysis</strong>
+                                <span>Process multiple messages at once</span>
+                            </div>
+                            <i class="bi bi-arrow-right"></i>
                         </a>
                         <a href="{{ url_for('main.analytics') }}" class="quick-action">
-                            <div><strong>Analytics</strong><span>Review activity and model metrics.</span></div>
-                            <i class="bi bi-arrow-up-right"></i>
+                            <div>
+                                <strong>Analytics</strong>
+                                <span>View trends and model performance</span>
+                            </div>
+                            <i class="bi bi-arrow-right"></i>
                         </a>
                         <a href="{{ url_for('main.profile') }}" class="quick-action">
-                            <div><strong>Profile settings</strong><span>Update your account details.</span></div>
-                            <i class="bi bi-arrow-up-right"></i>
+                            <div>
+                                <strong>Profile Settings</strong>
+                                <span>Manage your account details</span>
+                            </div>
+                            <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
                 </div>

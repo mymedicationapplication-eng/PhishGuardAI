@@ -11,9 +11,9 @@
             {% if session.get('user_id') %}
             <ul class="navbar-nav me-auto ms-lg-4 gap-lg-1">
                 <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.scan' %}active{% endif %}" href="{{ url_for('main.scan') }}">Scan</a></li>
-                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.batch' %}active{% endif %}" href="{{ url_for('main.batch') }}">Batch</a></li>
-                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.history' %}active{% endif %}" href="{{ url_for('main.history') }}">History</a></li>
+                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.scan' %}active{% endif %}" href="{{ url_for('main.scan') }}">Scan Message</a></li>
+                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.batch' %}active{% endif %}" href="{{ url_for('main.batch') }}">Batch Analysis</a></li>
+                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.history' %}active{% endif %}" href="{{ url_for('main.history') }}">Scan History</a></li>
                 <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.analytics' %}active{% endif %}" href="{{ url_for('main.analytics') }}">Analytics</a></li>
                 {% if session.get('role') == 'admin' %}
                 <li class="nav-item"><a class="nav-link {% if request.endpoint.startswith('main.admin') %}active{% endif %}" href="{{ url_for('main.admin_overview') }}">Admin Center</a></li>
@@ -27,8 +27,8 @@
             </div>
             {% else %}
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.landing') }}#features">Features</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.landing') }}#metrics">Model</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">About Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.features') }}">Features</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.landing') }}#contact">Contact</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Login</a></li>
                 <li class="nav-item"><a class="btn btn-primary rounded-pill px-4" href="{{ url_for('auth.register') }}">Get Started</a></li>

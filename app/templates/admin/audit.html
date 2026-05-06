@@ -1,32 +1,98 @@
 {% extends "base.html" %}
-{% block title %}Admin Audit Log | PhishGuard{% endblock %}
+{% block title %}Audit Log | PhishGuard{% endblock %}
 {% block content %}
 <div class="container pb-5">
     <div class="page-header">
         <div>
             <span class="eyebrow-badge">Administration</span>
-            <h1 class="mt-3">Audit Log</h1>
-            <p class="text-muted">Track registration, login, scanning, profile updates, and administrative actions.</p>
+            <h1 class="mt-2 mb-2">Audit Log</h1>
+            <p class="text-muted mb-0">Complete system activity trail for compliance and security monitoring</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('main.admin_overview') }}" class="btn btn-outline-primary rounded-pill px-3"><i class="bi bi-arrow-left me-2"></i>Back</a>
+            <a href="{{ url_for('main.admin_audit_export', format='excel') }}" class="btn btn-success rounded-pill px-3"><i class="bi bi-file-earmark-excel me-2"></i>Export Excel</a>
+            <a href="{{ url_for('main.admin_audit_export', format='pdf') }}" class="btn btn-danger rounded-pill px-3"><i class="bi bi-file-earmark-pdf me-2"></i>Export PDF</a>
         </div>
     </div>
+
+    <div class="card shell-card mb-4">
+        <div class="card-body p-4">
+            <h5 class="mb-3"><i class="bi bi-funnel me-2"></i>Filter Activity</h5>
+            <form method="get" class="row g-3">
+                <div class="col-lg-4">
+                    <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Search</label>
+                    <input type="text" class="form-control" name="q" value="{{ request.args.get('q', '') }}" placeholder="Action or description...">
+                </div>
+                <div class="col-lg-3">
+                    <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Severity</label>
+                    <select class="form-select" name="severity">
+                        <option value="">All Levels</option>
+                        <option value="info" {% if request.args.get('severity') == 'info' %}selected{% endif %}>Info</option>
+                        <option value="warning" {% if request.args.get('severity') == 'warning' %}selected{% endif %}>Warning</option>
+                        <option value="error" {% if request.args.get('severity') == 'error' %}selected{% endif %}>Error</option>
+                    </select>
+                </div>
+                <div class="col-lg-3">
+                    <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Action Type</label>
+                    <select class="form-select" name="action">
+                        <option value="">All Actions</option>
+                        <option value="login" {% if request.args.get('action') == 'login' %}selected{% endif %}>Login</option>
+                        <option value="register" {% if request.args.get('action') == 'register' %}selected{% endif %}>Register</option>
+                        <option value="scan_message" {% if request.args.get('action') == 'scan_message' %}selected{% endif %}>Scan Message</option>
+                        <option value="batch_scan" {% if request.args.get('action') == 'batch_scan' %}selected{% endif %}>Batch Scan</option>
+                        <option value="profile_update" {% if request.args.get('action') == 'profile_update' %}selected{% endif %}>Profile Update</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 d-grid">
+                    <label class="form-label invisible">Go</label>
+                    <button class="btn btn-primary"><i class="bi bi-search me-2"></i>Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card shell-card">
         <div class="card-body p-4">
+            <div class="mb-3">
+                <h5 class="mb-1"><i class="bi bi-clock-history me-2"></i>Activity Timeline</h5>
+                <p class="text-muted mb-0 small">Showing {{ logs|length }} event{{ 's' if logs|length != 1 else '' }}</p>
+            </div>
+            {% if logs %}
             <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Severity</th><th>Description</th></tr></thead>
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="font-size: .85rem;">Timestamp</th>
+                            <th style="font-size: .85rem;">Actor</th>
+                            <th style="font-size: .85rem;">Action</th>
+                            <th style="font-size: .85rem;">Severity</th>
+                            <th style="font-size: .85rem;">Description</th>
+                        </tr>
+                    </thead>
                     <tbody>
                     {% for log in logs %}
                         <tr>
-                            <td>{{ log.created_at }}</td>
-                            <td>{{ log.full_name or "System" }}</td>
-                            <td>{{ log.action_type }}</td>
-                            <td>{{ log.severity }}</td>
-                            <td>{{ log.description }}</td>
+                            <td class="text-muted" style="font-size: .85rem;">{{ log.created_at[:16] }}</td>
+                            <td><strong>{{ log.full_name or "System" }}</strong></td>
+                            <td><span class="badge bg-primary" style="padding: .5rem .75rem;">{{ log.action_type|replace('_', ' ')|title }}</span></td>
+                            <td>
+                                <span class="badge bg-{{ 'danger' if log.severity == 'error' else ('warning' if log.severity == 'warning' else 'info') }}" style="padding: .5rem .75rem;">
+                                    {{ log.severity|capitalize }}
+                                </span>
+                            </td>
+                            <td class="truncate-cell" style="max-width: 400px;">{{ log.description }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-clock-history"></i>
+                <h6 class="mt-2">No Audit Logs</h6>
+                <p class="text-muted mb-0">No activity has been recorded yet</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

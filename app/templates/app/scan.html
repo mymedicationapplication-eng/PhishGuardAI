@@ -4,21 +4,23 @@
 <div class="container pb-5">
     <div class="page-header">
         <div>
-            <span class="eyebrow-badge">Detection workspace</span>
-            <h1 class="mt-3">Single Message Scan</h1>
-            <p class="text-muted">Paste an email, SMS, or suspicious text and let PhishGuard analyze it using AI and phishing heuristics.</p>
+            <span class="eyebrow-badge">Detection Workspace</span>
+            <h1 class="mt-2 mb-2">Single Message Scan</h1>
+            <p class="text-muted mb-0">Analyze suspicious emails, SMS, or text content with AI-powered phishing detection</p>
         </div>
     </div>
     <div class="row g-4">
         <div class="col-xl-6">
-            <div class="card shell-card">
+            <div class="card shell-card h-100">
                 <div class="card-body p-4">
+                    <h5 class="mb-3"><i class="bi bi-envelope-open me-2"></i>Message Content</h5>
                     <form method="post" class="vstack gap-3">
                         <div>
-                            <label class="form-label">Message content</label>
-                            <textarea class="form-control form-control-lg" name="message" rows="12" placeholder="Paste suspicious content here..." required>{{ message }}</textarea>
+                            <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Paste suspicious content</label>
+                            <textarea class="form-control" name="message" rows="14" placeholder="Paste email, SMS, or suspicious text here..." required style="font-size: .95rem;">{{ message }}</textarea>
+                            <div class="form-text mt-2">The AI model will analyze the content for phishing indicators, suspicious URLs, and risk patterns</div>
                         </div>
-                        <button class="btn btn-primary btn-lg">Analyze Message</button>
+                        <button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-shield-check me-2"></i>Analyze Message</button>
                     </form>
                 </div>
             </div>
@@ -27,22 +29,45 @@
             <div class="card shell-card h-100">
                 <div class="card-body p-4">
                     {% if result %}
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                        <h5 class="mb-0">Detection result</h5>
-                        <span class="status-pill {{ 'high' if result.prediction_label == 'Phishing' else 'safe' }}">{{ result.prediction_label }}</span>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>Detection Result</h5>
+                        <span class="status-pill {{ 'high' if result.prediction_label == 'Phishing' else 'safe' }}" style="font-size: .95rem; padding: .6rem 1rem;">{{ result.prediction_label }}</span>
                     </div>
-                    <div class="result-grid-lg mb-4">
-                        <div class="metric-card"><span>Confidence</span><strong>{{ "%.2f"|format(result.confidence) }}%</strong></div>
-                        <div class="metric-card"><span>Phishing Probability</span><strong>{{ "%.2f"|format(result.phishing_probability) }}%</strong></div>
-                        <div class="metric-card"><span>Legitimate Probability</span><strong>{{ "%.2f"|format(result.legitimate_probability) }}%</strong></div>
-                        <div class="metric-card"><span>Risk Score</span><strong>{{ result.risk_score }}/100</strong></div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="metric-card">
+                                <span class="d-block mb-1" style="font-size: .8rem;">Confidence</span>
+                                <strong class="d-block" style="font-size: 1.5rem;">{{ "%.1f"|format(result.confidence) }}%</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-card">
+                                <span class="d-block mb-1" style="font-size: .8rem;">Risk Score</span>
+                                <strong class="d-block" style="font-size: 1.5rem; color: {{ '#b72e2e' if result.risk_score > 70 else ('#9b6b00' if result.risk_score > 40 else '#0a8050') }};">{{ result.risk_score }}/100</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-card">
+                                <span class="d-block mb-1" style="font-size: .8rem;">Phishing Probability</span>
+                                <strong class="d-block" style="font-size: 1.15rem;">{{ "%.1f"|format(result.phishing_probability) }}%</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-card">
+                                <span class="d-block mb-1" style="font-size: .8rem;">Legitimate Probability</span>
+                                <strong class="d-block" style="font-size: 1.15rem;">{{ "%.1f"|format(result.legitimate_probability) }}%</strong>
+                            </div>
+                        </div>
                     </div>
+
                     <div class="mb-3">
-                        <h6>Risk level</h6>
-                        <span class="status-pill {{ result.risk_level|lower }}">{{ result.risk_level }}</span>
+                        <h6 class="mb-2"><i class="bi bi-flag me-2"></i>Risk Level</h6>
+                        <span class="status-pill {{ result.risk_level|lower }}" style="font-size: .9rem;">{{ result.risk_level }} Risk</span>
                     </div>
+
                     <div class="mb-3">
-                        <h6>Suspicious indicators</h6>
+                        <h6 class="mb-2"><i class="bi bi-exclamation-triangle me-2"></i>Suspicious Indicators</h6>
                         {% if result.suspicious_keywords %}
                             <div class="tag-cloud">
                             {% for item in result.suspicious_keywords %}
@@ -50,29 +75,32 @@
                             {% endfor %}
                             </div>
                         {% else %}
-                            <p class="text-muted mb-0">No explicit suspicious keywords were detected.</p>
+                            <p class="text-muted mb-0 small">No explicit suspicious keywords detected</p>
                         {% endif %}
                     </div>
+
                     <div class="mb-3">
-                        <h6>Detected URLs</h6>
+                        <h6 class="mb-2"><i class="bi bi-link-45deg me-2"></i>Detected URLs</h6>
                         {% if result.detected_urls %}
-                            <ul class="list-unstyled mb-0 vstack gap-2">
+                            <div class="vstack gap-2">
                             {% for url in result.detected_urls %}
-                                <li class="url-chip">{{ url }}</li>
+                                <div class="url-chip">{{ url }}</div>
                             {% endfor %}
-                            </ul>
+                            </div>
                         {% else %}
-                            <p class="text-muted mb-0">No links were extracted from this message.</p>
+                            <p class="text-muted mb-0 small">No URLs found in this message</p>
                         {% endif %}
                     </div>
-                    <div class="alert alert-info border-0 mb-0">
-                        <strong>Recommendation:</strong> {{ result.recommendation }}
+
+                    <div class="alert alert-{{ 'danger' if result.prediction_label == 'Phishing' else 'success' }} border-0 mb-0" style="background: {{ 'rgba(214,52,52,.08)' if result.prediction_label == 'Phishing' else 'rgba(18,171,100,.08)' }}; border-left: 4px solid {{ '#b72e2e' if result.prediction_label == 'Phishing' else '#0a8050' }} !important;">
+                        <strong><i class="bi bi-{{ 'shield-exclamation' if result.prediction_label == 'Phishing' else 'shield-check' }} me-2"></i>Recommendation:</strong>
+                        <p class="mb-0 mt-1">{{ result.recommendation }}</p>
                     </div>
                     {% else %}
                     <div class="empty-state tall">
                         <i class="bi bi-shield-lock"></i>
-                        <h6>Ready to analyze</h6>
-                        <p class="text-muted">Run a scan to see the AI verdict, link analysis, risk score, and safety guidance.</p>
+                        <h6 class="mt-2">Ready to Analyze</h6>
+                        <p class="text-muted mb-0">Paste a message and click "Analyze" to see AI predictions, risk scores, and security recommendations</p>
                     </div>
                     {% endif %}
                 </div>

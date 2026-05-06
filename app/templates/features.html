@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Features | PhishGuard{% endblock %}
+{% block content %}
+<section class="section-pad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-5">
+                    <span class="eyebrow-badge">Platform Capabilities</span>
+                    <h1 class="display-5 fw-bold mt-3">Everything you need to detect and prevent phishing attacks</h1>
+                    <p class="lead text-muted mt-3">A complete security platform with AI-powered detection, comprehensive analytics, and enterprise-grade administration.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                    <h4 class="mt-3">Real-Time Detection</h4>
+                    <p class="text-muted">Instantly analyze emails, messages, and text content with our AI-powered phishing detection engine. Get immediate verdicts with confidence scores and risk levels.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+                    <h4 class="mt-3">Batch Processing</h4>
+                    <p class="text-muted">Upload CSV or TXT files containing multiple messages and process them all at once. Export results for compliance, reporting, or further analysis.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon"><i class="bi bi-folder-check"></i></div>
+                    <h4 class="mt-3">Scan History</h4>
+                    <p class="text-muted">Access complete records of all scans with powerful search and filtering. Track patterns, review past decisions, and maintain audit compliance.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon"><i class="bi bi-bar-chart-fill"></i></div>
+                    <h4 class="mt-3">Advanced Analytics</h4>
+                    <p class="text-muted">Visualize threat trends, monitor detection rates, and gain insights into your security posture with interactive charts and comprehensive metrics.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon"><i class="bi bi-link-45deg"></i></div>
+                    <h4 class="mt-3">URL Analysis</h4>
+                    <p class="text-muted">Automatically detect and flag suspicious URLs in messages. Identify shortened links, typosquatting attempts, and known malicious domains.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                    <h4 class="mt-3">Keyword Detection</h4>
+                    <p class="text-muted">Rule-based engine identifies common phishing indicators like urgency language, financial requests, and credential harvesting attempts.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon"><i class="bi bi-person-badge"></i></div>
+                    <h4 class="mt-3">User Management</h4>
+                    <p class="text-muted">Role-based access control with user and admin roles. Manage team members, control permissions, and maintain security boundaries.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon"><i class="bi bi-clipboard-data"></i></div>
+                    <h4 class="mt-3">Audit Logging</h4>
+                    <p class="text-muted">Complete audit trail of all system activities. Track user actions, scan operations, and administrative changes for compliance and security review.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon"><i class="bi bi-gear-fill"></i></div>
+                    <h4 class="mt-3">Admin Center</h4>
+                    <p class="text-muted">Centralized dashboard for administrators to oversee users, review scan records, monitor system health, and manage model performance.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-5 align-items-center mb-5">
+            <div class="col-lg-6">
+                <h2 class="mb-4">AI-Powered Detection Engine</h2>
+                <p class="text-muted mb-3">Our machine learning model uses TF-IDF vectorization and Logistic Regression to analyze message content and identify phishing patterns with high accuracy.</p>
+                <ul class="feature-list">
+                    <li>High precision and recall rates minimize false positives</li>
+                    <li>Confidence scores provide transparency in decision-making</li>
+                    <li>Risk scoring combines AI predictions with rule-based analysis</li>
+                    <li>Continuous monitoring ensures consistent performance</li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="metric-card"><span>Accuracy</span><strong>{{ "%.2f"|format((metrics.accuracy or 0) * 100) }}%</strong></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="metric-card"><span>Precision</span><strong>{{ "%.2f"|format((metrics.precision or 0) * 100) }}%</strong></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="metric-card"><span>Recall</span><strong>{{ "%.2f"|format((metrics.recall or 0) * 100) }}%</strong></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="metric-card"><span>F1 Score</span><strong>{{ "%.2f"|format((metrics.f1_score or 0) * 100) }}%</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="p-5 rounded-3 bg-light">
+                    <h3 class="mb-3">Ready to Protect Your Organization?</h3>
+                    <p class="text-muted mb-4">Join organizations using PhishGuard to detect and prevent phishing attacks. Get started in minutes with our intuitive platform.</p>
+                    <div class="d-flex flex-wrap gap-3 justify-content-center">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary rounded-pill px-4">Start Free Trial</a>
+                        <a href="{{ url_for('main.landing') }}#contact" class="btn btn-outline-primary rounded-pill px-4">Contact Sales</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

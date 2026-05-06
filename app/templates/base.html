@@ -11,27 +11,41 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
+    <div id="toast-container" class="toast-container"></div>
     <div class="site-shell">
         {% include "partials/navbar.html" %}
         {% if request.endpoint != 'main.landing' %}
-        <div class="container py-4">
+        <div class="container-fluid px-3 px-md-4 py-4">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div class="flash-stack">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            {% for category, message in messages %}
+                            showToast('{{ message|safe }}', '{{ category }}');
+                            {% endfor %}
+                        });
+                    </script>
                 {% endif %}
             {% endwith %}
         </div>
+        {% else %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        {% for category, message in messages %}
+                        showToast('{{ message|safe }}', '{{ category }}');
+                        {% endfor %}
+                    });
+                </script>
+            {% endif %}
+        {% endwith %}
         {% endif %}
         {% block content %}{% endblock %}
     </div>
+    {% if not (request.endpoint and request.endpoint.startswith('auth.')) %}
     {% include "partials/footer.html" %}
+    {% endif %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
