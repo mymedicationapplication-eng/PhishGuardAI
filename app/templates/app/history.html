@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}History | PhishGuard{% endblock %}
+{% block content %}
+<div class="container pb-5">
+    <div class="page-header">
+        <div>
+            <span class="eyebrow-badge">Stored scans</span>
+            <h1 class="mt-3">Scan History</h1>
+            <p class="text-muted">Search and filter previous phishing analysis results.</p>
+        </div>
+    </div>
+
+    <div class="card shell-card mb-4">
+        <div class="card-body p-4">
+            <form method="get" class="row g-3">
+                <div class="col-lg-5">
+                    <label class="form-label">Search text</label>
+                    <input type="text" class="form-control" name="q" value="{{ search }}" placeholder="Search messages">
+                </div>
+                <div class="col-lg-3">
+                    <label class="form-label">Risk level</label>
+                    <select class="form-select" name="risk">
+                        <option value="">All</option>
+                        <option value="Low" {% if risk == 'Low' %}selected{% endif %}>Low</option>
+                        <option value="Medium" {% if risk == 'Medium' %}selected{% endif %}>Medium</option>
+                        <option value="High" {% if risk == 'High' %}selected{% endif %}>High</option>
+                    </select>
+                </div>
+                <div class="col-lg-3">
+                    <label class="form-label">Prediction</label>
+                    <select class="form-select" name="label">
+                        <option value="">All</option>
+                        <option value="Phishing" {% if label == 'Phishing' %}selected{% endif %}>Phishing</option>
+                        <option value="Legitimate" {% if label == 'Legitimate' %}selected{% endif %}>Legitimate</option>
+                    </select>
+                </div>
+                <div class="col-lg-1 d-grid">
+                    <label class="form-label invisible">Go</label>
+                    <button class="btn btn-primary">Go</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shell-card">
+        <div class="card-body p-4">
+            {% if scans %}
+            <div class="history-list">
+            {% for row in scans %}
+                <div class="history-item">
+                    <div class="d-flex justify-content-between gap-3 flex-wrap mb-2">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="status-pill {{ 'high' if row.prediction_label == 'Phishing' else 'safe' }}">{{ row.prediction_label }}</span>
+                            <span class="status-pill {{ row.risk_level|lower }}">{{ row.risk_level }}</span>
+                        </div>
+                        <span class="text-muted small">{{ row.created_at }}</span>
+                    </div>
+                    <p class="mb-2">{{ row.original_message }}</p>
+                    <div class="small text-muted d-flex gap-4 flex-wrap">
+                        <span>Confidence: {{ "%.2f"|format(row.confidence) }}%</span>
+                        <span>Risk score: {{ row.risk_score }}/100</span>
+                        <span>Keywords: {{ (json.loads(row.suspicious_keywords or '[]')|join(', ')) if row.suspicious_keywords else 'None' }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-clock-history"></i>
+                <h6>No scan history found</h6>
+                <p class="text-muted">Try adjusting your filters or run a new scan.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

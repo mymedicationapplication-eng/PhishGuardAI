@@ -1,0 +1,15 @@
+<footer class="site-footer">
+    <div class="container d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-center">
+        <div class="text-muted small">© 2026 PhishGuard. AI-powered phishing protection experience.</div>
+        <div class="d-flex gap-3 small">
+            <a href="{{ url_for('main.landing') }}#features">Features</a>
+            <a href="{{ url_for('main.landing') }}#metrics">Metrics</a>
+            <a href="{{ url_for('main.landing') }}#contact">Contact</a>
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('main.scan') }}">Scan</a>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</footer>

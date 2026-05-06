@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Analytics | PhishGuard{% endblock %}
+{% block content %}
+<div class="container pb-5">
+    <div class="page-header">
+        <div>
+            <span class="eyebrow-badge">Insights</span>
+            <h1 class="mt-3">Analytics & Model Performance</h1>
+            <p class="text-muted">Review personal scan trends alongside the saved model evaluation metrics.</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Total Scans</span><strong>{{ summary.total or 0 }}</strong></div></div>
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Phishing</span><strong>{{ summary.phishing_count or 0 }}</strong></div></div>
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Legitimate</span><strong>{{ summary.legitimate_count or 0 }}</strong></div></div>
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>High Risk</span><strong>{{ summary.high_count or 0 }}</strong></div></div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-7">
+            <div class="card shell-card h-100">
+                <div class="card-body p-4">
+                    <h5 class="mb-3">Recent scan activity</h5>
+                    <canvas id="activityChart" height="110"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-5">
+            <div class="card shell-card h-100">
+                <div class="card-body p-4">
+                    <h5 class="mb-3">Risk distribution</h5>
+                    <canvas id="riskChart" height="110"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shell-card">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                <h5 class="mb-0">Saved model metrics</h5>
+                <span class="text-muted small">{{ metrics.model_type }} • {{ metrics.trained_at }}</span>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6 col-xl-2"><div class="metric-card"><span>Accuracy</span><strong>{{ "%.2f"|format((metrics.accuracy or 0) * 100) }}%</strong></div></div>
+                <div class="col-md-6 col-xl-2"><div class="metric-card"><span>Precision</span><strong>{{ "%.2f"|format((metrics.precision or 0) * 100) }}%</strong></div></div>
+                <div class="col-md-6 col-xl-2"><div class="metric-card"><span>Recall</span><strong>{{ "%.2f"|format((metrics.recall or 0) * 100) }}%</strong></div></div>
+                <div class="col-md-6 col-xl-2"><div class="metric-card"><span>F1 Score</span><strong>{{ "%.2f"|format((metrics.f1_score or 0) * 100) }}%</strong></div></div>
+                <div class="col-md-6 col-xl-2"><div class="metric-card"><span>ROC-AUC</span><strong>{{ "%.2f"|format((metrics.roc_auc or 0) * 100) }}%</strong></div></div>
+                <div class="col-md-6 col-xl-2"><div class="metric-card"><span>Records</span><strong>{{ metrics.total_records or 0 }}</strong></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+window.PHISHGUARD_ANALYTICS = {
+    activityLabels: {{ recent | map(attribute='day') | list | tojson }},
+    activityValues: {{ recent | map(attribute='count') | list | tojson }},
+    riskValues: [{{ summary.low_count or 0 }}, {{ summary.medium_count or 0 }}, {{ summary.high_count or 0 }}]
+};
+</script>
+{% endblock %}

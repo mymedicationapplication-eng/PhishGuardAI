@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Admin Model Center | PhishGuard{% endblock %}
+{% block content %}
+<div class="container pb-5">
+    <div class="page-header">
+        <div>
+            <span class="eyebrow-badge">Administration</span>
+            <h1 class="mt-3">Model Center</h1>
+            <p class="text-muted">Review the integrated model artifact information and the saved evaluation metrics.</p>
+        </div>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Accuracy</span><strong>{{ "%.2f"|format((metrics.accuracy or 0) * 100) }}%</strong></div></div>
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Precision</span><strong>{{ "%.2f"|format((metrics.precision or 0) * 100) }}%</strong></div></div>
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Recall</span><strong>{{ "%.2f"|format((metrics.recall or 0) * 100) }}%</strong></div></div>
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>ROC-AUC</span><strong>{{ "%.2f"|format((metrics.roc_auc or 0) * 100) }}%</strong></div></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-7">
+            <div class="card shell-card h-100">
+                <div class="card-body p-4">
+                    <h5 class="mb-3">Training records</h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead><tr><th>Model</th><th>Train Size</th><th>Test Size</th><th>Total</th><th>Trained At</th></tr></thead>
+                            <tbody>
+                            {% for row in training %}
+                                <tr>
+                                    <td>{{ row.model_type }}</td>
+                                    <td>{{ row.train_size }}</td>
+                                    <td>{{ row.test_size }}</td>
+                                    <td>{{ row.total_records }}</td>
+                                    <td>{{ row.trained_at }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-info border-0 mt-3 mb-0">
+                        To replace the model later, swap the files in the <code>artifacts/</code> folder and restart the application.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-5">
+            <div class="card shell-card h-100">
+                <div class="card-body p-4">
+                    <h5 class="mb-3">Confusion matrix</h5>
+                    {% set matrix = metrics.confusion_matrix or [[0,0],[0,0]] %}
+                    <div class="matrix-grid">
+                        <div class="matrix-cell header-cell"></div>
+                        <div class="matrix-cell header-cell">Pred. Legitimate</div>
+                        <div class="matrix-cell header-cell">Pred. Phishing</div>
+                        <div class="matrix-cell header-cell">Actual Legitimate</div>
+                        <div class="matrix-cell">{{ matrix[0][0] }}</div>
+                        <div class="matrix-cell">{{ matrix[0][1] }}</div>
+                        <div class="matrix-cell header-cell">Actual Phishing</div>
+                        <div class="matrix-cell">{{ matrix[1][0] }}</div>
+                        <div class="matrix-cell">{{ matrix[1][1] }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

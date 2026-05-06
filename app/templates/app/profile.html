@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Profile | PhishGuard{% endblock %}
+{% block content %}
+<div class="container pb-5">
+    <div class="page-header">
+        <div>
+            <span class="eyebrow-badge">Account management</span>
+            <h1 class="mt-3">Profile Settings</h1>
+            <p class="text-muted">Update your personal details and change your password securely.</p>
+        </div>
+    </div>
+    <div class="card shell-card">
+        <div class="card-body p-4">
+            <form method="post" class="row g-4">
+                <div class="col-lg-6">
+                    <label class="form-label">Full name</label>
+                    <input class="form-control form-control-lg" name="full_name" value="{{ user.full_name }}" required>
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">Institution</label>
+                    <input class="form-control form-control-lg" name="institution" value="{{ user.institution or '' }}">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Bio</label>
+                    <textarea class="form-control" name="bio" rows="5">{{ user.bio or '' }}</textarea>
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">Email address</label>
+                    <input class="form-control form-control-lg" value="{{ user.email }}" disabled>
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label">New password</label>
+                    <input class="form-control form-control-lg" type="password" name="new_password" minlength="8" placeholder="Leave blank to keep current password">
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary btn-lg rounded-pill px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

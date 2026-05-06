@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Admin Users | PhishGuard{% endblock %}
+{% block content %}
+<div class="container pb-5">
+    <div class="page-header">
+        <div>
+            <span class="eyebrow-badge">Administration</span>
+            <h1 class="mt-3">User Management</h1>
+            <p class="text-muted">Review accounts, manage roles, and activate or disable access.</p>
+        </div>
+    </div>
+    <div class="card shell-card">
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Created</th><th>Last Login</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.role }}</td>
+                            <td>{{ "Active" if user.is_active else "Disabled" }}</td>
+                            <td>{{ user.created_at }}</td>
+                            <td>{{ user.last_login or "—" }}</td>
+                            <td>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <form method="post">
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <input type="hidden" name="action" value="toggle_active">
+                                        <button class="btn btn-sm btn-outline-primary">{{ "Disable" if user.is_active else "Enable" }}</button>
+                                    </form>
+                                    {% if session.get('user_id') != user.id %}
+                                    <form method="post">
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <input type="hidden" name="action" value="toggle_role">
+                                        <button class="btn btn-sm btn-outline-secondary">{{ "Make User" if user.role == "admin" else "Make Admin" }}</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

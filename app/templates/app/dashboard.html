@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | PhishGuard{% endblock %}
+{% block content %}
+<div class="container pb-5">
+    <div class="page-header">
+        <div>
+            <span class="eyebrow-badge">Workspace overview</span>
+            <h1 class="mt-3">Dashboard</h1>
+            <p class="text-muted">Review your recent phishing detection activity and jump into the main workflows.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ url_for('main.scan') }}" class="btn btn-primary rounded-pill px-4">Scan Message</a>
+            <a href="{{ url_for('main.batch') }}" class="btn btn-outline-primary rounded-pill px-4">Batch Upload</a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Total Scans</span><strong>{{ stats.total_scans or 0 }}</strong></div></div>
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Phishing Detected</span><strong>{{ stats.phishing_count or 0 }}</strong></div></div>
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>Legitimate</span><strong>{{ stats.legitimate_count or 0 }}</strong></div></div>
+        <div class="col-md-6 col-xl-3"><div class="stat-card"><span>High Risk</span><strong>{{ stats.high_risk_count or 0 }}</strong></div></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="card shell-card h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Recent scans</h5>
+                        <a href="{{ url_for('main.history') }}" class="small">View all</a>
+                    </div>
+                    {% if recent_scans %}
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Message</th>
+                                    <th>Result</th>
+                                    <th>Risk</th>
+                                    <th>Confidence</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in recent_scans %}
+                                <tr>
+                                    <td class="truncate-cell">{{ row.original_message }}</td>
+                                    <td><span class="status-pill {{ 'high' if row.prediction_label == 'Phishing' else 'safe' }}">{{ row.prediction_label }}</span></td>
+                                    <td>{{ row.risk_level }}</td>
+                                    <td>{{ "%.2f"|format(row.confidence) }}%</td>
+                                    <td>{{ row.created_at }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-inboxes"></i>
+                        <h6>No scans yet</h6>
+                        <p class="text-muted">Run your first scan to populate the dashboard.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card shell-card h-100">
+                <div class="card-body p-4">
+                    <h5 class="mb-3">Quick actions</h5>
+                    <div class="quick-action-list">
+                        <a href="{{ url_for('main.scan') }}" class="quick-action">
+                            <div><strong>Scan message</strong><span>Analyze one suspicious message now.</span></div>
+                            <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                        <a href="{{ url_for('main.batch') }}" class="quick-action">
+                            <div><strong>Batch analysis</strong><span>Upload a list of messages.</span></div>
+                            <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                        <a href="{{ url_for('main.analytics') }}" class="quick-action">
+                            <div><strong>Analytics</strong><span>Review activity and model metrics.</span></div>
+                            <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                        <a href="{{ url_for('main.profile') }}" class="quick-action">
+                            <div><strong>Profile settings</strong><span>Update your account details.</span></div>
+                            <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
