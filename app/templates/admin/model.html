@@ -6,7 +6,7 @@
         <div>
             <span class="eyebrow-badge">Administration</span>
             <h1 class="mt-2 mb-2">Model Center</h1>
-            <p class="text-muted mb-0">AI model performance metrics and training information</p>
+            <p class="text-muted mb-0">AI model performance metrics, training information, and retraining controls</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <a href="{{ url_for('main.admin_overview') }}" class="btn btn-outline-primary rounded-pill px-3"><i class="bi bi-arrow-left me-2"></i>Back</a>
@@ -61,17 +61,111 @@
         </div>
     </div>
 
+    <div class="row g-4 mb-4">
+        <div class="col-xl-8">
+            <div class="card shell-card">
+                <div class="card-body p-4">
+                    <h5 class="mb-3"><i class="bi bi-cpu me-2"></i>Model Retraining</h5>
+                    <div class="alert alert-warning border-0 mb-4" style="background: rgba(255,174,0,.08);">
+                        <strong><i class="bi bi-exclamation-triangle me-2"></i>Important Notice</strong>
+                        <p class="mb-0 mt-2 small">Model retraining will use all available scan data to improve detection accuracy. This process may take several minutes and will temporarily affect system performance.</p>
+                    </div>
+                    
+                    <form method="post" action="{{ url_for('main.admin_model_retrain') }}" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Training Data Source</label>
+                            <select class="form-select" name="data_source" required>
+                                <option value="scan_data">Use Scan History ({{ scan_count or 0 }} records)</option>
+                                <option value="upload_file">Upload Training File</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Model Algorithm</label>
+                            <select class="form-select" name="algorithm" required>
+                                <option value="logistic_regression">Logistic Regression (Current)</option>
+                                <option value="random_forest">Random Forest</option>
+                                <option value="svm">Support Vector Machine</option>
+                                <option value="naive_bayes">Naive Bayes</option>
+                            </select>
+                        </div>
+                        <div class="col-12" id="file-upload" style="display: none;">
+                            <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Training Data File</label>
+                            <input class="form-control" type="file" name="training_file" accept=".csv,.txt">
+                            <div class="form-text">CSV format: message,label (where label is 'phishing' or 'legitimate')</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Test Split %</label>
+                            <input class="form-control" type="number" name="test_split" value="20" min="10" max="40" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Random State</label>
+                            <input class="form-control" type="number" name="random_state" value="42" min="1" max="1000" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" style="color: var(--pg-secondary); font-size: .9rem;">Max Features</label>
+                            <input class="form-control" type="number" name="max_features" value="5000" min="1000" max="10000" required>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="backup_current" id="backup_current" checked>
+                                <label class="form-check-label" for="backup_current">
+                                    Backup current model before retraining
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-primary btn-lg user-action-btn" type="submit" id="retrainBtn">
+                                <span class="btn-text"><i class="bi bi-arrow-clockwise me-2"></i>Start Retraining</span>
+                                <span class="btn-spinner d-none">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Training model...
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card shell-card">
+                <div class="card-body p-4">
+                    <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Training History</h5>
+                    {% if training_runs %}
+                    <div class="timeline-list">
+                        {% for run in training_runs[:5] %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot" style="background: {{ 'linear-gradient(135deg, #12ab64, #0a8050)' if run.status == 'completed' else 'linear-gradient(135deg, #d63434, #b72e2e)' }};"></div>
+                            <div>
+                                <strong style="font-size: .9rem;">{{ run.algorithm|title }} Model</strong>
+                                <div class="text-muted small">Accuracy: {{ "%.1f"|format((run.accuracy or 0) * 100) }}%</div>
+                                <div class="text-muted small"><i class="bi bi-clock me-1"></i>{{ run.trained_at[:16] }}</div>
+                                <span class="badge bg-{{ 'success' if run.status == 'completed' else 'danger' }} mt-1" style="font-size: .7rem;">{{ run.status|title }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-clock-history"></i>
+                        <p class="text-muted mb-0">No training history</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
         <div class="col-xl-7">
             <div class="card shell-card h-100">
                 <div class="card-body p-4">
-                    <h5 class="mb-3"><i class="bi bi-database me-2"></i>Training Information</h5>
+                    <h5 class="mb-3"><i class="bi bi-database me-2"></i>Current Model Information</h5>
                     <div class="mb-4">
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="p-3 rounded" style="background: rgba(24,180,191,.08);">
                                     <span class="d-block text-muted small mb-1">Model Type</span>
-                                    <strong>{{ metrics.model_type or "N/A" }}</strong>
+                                    <strong>{{ metrics.model_type or "Logistic Regression" }}</strong>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -102,7 +196,7 @@
                     </div>
                     <div class="alert alert-info border-0 mb-0" style="background: rgba(24,180,191,.08);">
                         <strong><i class="bi bi-info-circle me-2"></i>Model Management</strong>
-                        <p class="mb-0 mt-2 small">To update the model, replace files in <code>artifacts/</code> folder and restart the application. Ensure scikit-learn version compatibility.</p>
+                        <p class="mb-0 mt-2 small">Use the retraining interface above to improve model performance with new data. The system will automatically validate and deploy successful models.</p>
                     </div>
                 </div>
             </div>
@@ -110,28 +204,119 @@
         <div class="col-xl-5">
             <div class="card shell-card h-100">
                 <div class="card-body p-4">
-                    <h5 class="mb-3"><i class="bi bi-grid-3x3 me-2"></i>Confusion Matrix</h5>
-                    {% set matrix = metrics.confusion_matrix or [[0,0],[0,0]] %}
-                    <div class="matrix-grid">
-                        <div class="matrix-cell header-cell"></div>
-                        <div class="matrix-cell header-cell">Pred. Legit</div>
-                        <div class="matrix-cell header-cell">Pred. Phish</div>
-                        <div class="matrix-cell header-cell">Actual Legit</div>
-                        <div class="matrix-cell" style="background: rgba(18,171,100,.15); font-size: 1.25rem;"><strong>{{ "{:,}".format(matrix[0][0]) }}</strong></div>
-                        <div class="matrix-cell" style="background: rgba(214,52,52,.15); font-size: 1.25rem;"><strong>{{ "{:,}".format(matrix[0][1]) }}</strong></div>
-                        <div class="matrix-cell header-cell">Actual Phish</div>
-                        <div class="matrix-cell" style="background: rgba(214,52,52,.15); font-size: 1.25rem;"><strong>{{ "{:,}".format(matrix[1][0]) }}</strong></div>
-                        <div class="matrix-cell" style="background: rgba(18,171,100,.15); font-size: 1.25rem;"><strong>{{ "{:,}".format(matrix[1][1]) }}</strong></div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="bi bi-grid-3x3 me-2"></i>Confusion Matrix</h5>
+                        <span class="badge bg-primary" style="font-size: .75rem;">Model Performance</span>
                     </div>
-                    <div class="mt-3 small text-muted">
-                        <p class="mb-1"><strong>True Positives:</strong> {{ "{:,}".format(matrix[1][1]) }} (Correctly identified phishing)</p>
-                        <p class="mb-1"><strong>True Negatives:</strong> {{ "{:,}".format(matrix[0][0]) }} (Correctly identified legitimate)</p>
-                        <p class="mb-1"><strong>False Positives:</strong> {{ "{:,}".format(matrix[0][1]) }} (Legitimate marked as phishing)</p>
-                        <p class="mb-0"><strong>False Negatives:</strong> {{ "{:,}".format(matrix[1][0]) }} (Phishing marked as legitimate)</p>
+                    {% set matrix = metrics.confusion_matrix or [[0,0],[0,0]] %}
+                    {% set total = matrix[0][0] + matrix[0][1] + matrix[1][0] + matrix[1][1] %}
+                    
+                    <div class="confusion-matrix-container mb-4">
+                        <div class="matrix-labels">
+                            <div class="predicted-label">Predicted</div>
+                            <div class="actual-label">Actual</div>
+                        </div>
+                        <div class="enhanced-matrix-grid">
+                            <div class="matrix-cell corner-cell"></div>
+                            <div class="matrix-cell header-cell">
+                                <i class="bi bi-shield-check text-success me-1"></i>
+                                <span>Legitimate</span>
+                            </div>
+                            <div class="matrix-cell header-cell">
+                                <i class="bi bi-exclamation-triangle text-danger me-1"></i>
+                                <span>Phishing</span>
+                            </div>
+                            
+                            <div class="matrix-cell row-header">
+                                <i class="bi bi-shield-check text-success me-1"></i>
+                                <span>Legitimate</span>
+                            </div>
+                            <div class="matrix-cell value-cell true-negative" data-tooltip="True Negatives: Correctly identified legitimate messages">
+                                <div class="cell-value">{{ "{:,}".format(matrix[0][0]) }}</div>
+                                <div class="cell-percentage">{{ "%.1f"|format((matrix[0][0] / total * 100) if total > 0 else 0) }}%</div>
+                            </div>
+                            <div class="matrix-cell value-cell false-positive" data-tooltip="False Positives: Legitimate messages incorrectly flagged as phishing">
+                                <div class="cell-value">{{ "{:,}".format(matrix[0][1]) }}</div>
+                                <div class="cell-percentage">{{ "%.1f"|format((matrix[0][1] / total * 100) if total > 0 else 0) }}%</div>
+                            </div>
+                            
+                            <div class="matrix-cell row-header">
+                                <i class="bi bi-exclamation-triangle text-danger me-1"></i>
+                                <span>Phishing</span>
+                            </div>
+                            <div class="matrix-cell value-cell false-negative" data-tooltip="False Negatives: Phishing messages incorrectly marked as legitimate">
+                                <div class="cell-value">{{ "{:,}".format(matrix[1][0]) }}</div>
+                                <div class="cell-percentage">{{ "%.1f"|format((matrix[1][0] / total * 100) if total > 0 else 0) }}%</div>
+                            </div>
+                            <div class="matrix-cell value-cell true-positive" data-tooltip="True Positives: Correctly identified phishing messages">
+                                <div class="cell-value">{{ "{:,}".format(matrix[1][1]) }}</div>
+                                <div class="cell-percentage">{{ "%.1f"|format((matrix[1][1] / total * 100) if total > 0 else 0) }}%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="matrix-summary">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="summary-item correct">
+                                    <div class="summary-icon"><i class="bi bi-check-circle-fill"></i></div>
+                                    <div>
+                                        <div class="summary-label">Correct Predictions</div>
+                                        <div class="summary-value">{{ "{:,}".format(matrix[0][0] + matrix[1][1]) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="summary-item incorrect">
+                                    <div class="summary-icon"><i class="bi bi-x-circle-fill"></i></div>
+                                    <div>
+                                        <div class="summary-label">Incorrect Predictions</div>
+                                        <div class="summary-value">{{ "{:,}".format(matrix[0][1] + matrix[1][0]) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="matrix-legend mt-3">
+                        <div class="legend-item">
+                            <div class="legend-color true-negative-color"></div>
+                            <span>True Negatives (TN)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color false-positive-color"></div>
+                            <span>False Positives (FP)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color false-negative-color"></div>
+                            <span>False Negatives (FN)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color true-positive-color"></div>
+                            <span>True Positives (TP)</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Handle data source selection
+document.addEventListener('DOMContentLoaded', function() {
+    const dataSourceSelect = document.querySelector('select[name="data_source"]');
+    const fileUploadDiv = document.getElementById('file-upload');
+    
+    dataSourceSelect.addEventListener('change', function() {
+        if (this.value === 'upload_file') {
+            fileUploadDiv.style.display = 'block';
+            fileUploadDiv.querySelector('input[name="training_file"]').required = true;
+        } else {
+            fileUploadDiv.style.display = 'none';
+            fileUploadDiv.querySelector('input[name="training_file"]').required = false;
+        }
+    });
+});
+</script>
 {% endblock %}

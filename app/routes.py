@@ -416,8 +416,216 @@ def admin_contacts():
 @admin_required
 def admin_model():
     metrics = get_metrics()
-    training = query_all("SELECT * FROM training_runs ORDER BY trained_at DESC")
-    return render_template("admin/model.html", metrics=metrics, training=training, json=json)
+    scan_count = query_one("SELECT COUNT(*) as count FROM scans")["count"]
+    training_runs = query_all("SELECT * FROM training_runs ORDER BY trained_at DESC LIMIT 10")
+    return render_template("admin/model.html", metrics=metrics, scan_count=scan_count, training_runs=training_runs, json=json)
+
+@main_bp.route("/admin/model/retrain", methods=["POST"])
+@admin_required
+def admin_model_retrain():
+    try:
+        import pandas as pd
+        import numpy as np
+        from sklearn.model_selection import train_test_split
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.ensemble import RandomForestClassifier
+        from sklearn.svm import SVC
+        from sklearn.naive_bayes import MultinomialNB
+        from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
+        import joblib
+        import os
+        from datetime import datetime
+        
+        # Get form parameters
+        data_source = request.form.get("data_source")
+        algorithm = request.form.get("algorithm")
+        test_split = float(request.form.get("test_split", 20)) / 100
+        random_state = int(request.form.get("random_state", 42))
+        max_features = int(request.form.get("max_features", 5000))
+        backup_current = request.form.get("backup_current") == "on"
+        
+        # Start training run record
+        training_id = execute(
+            """
+            INSERT INTO training_runs (algorithm, data_source, test_split, random_state, max_features, status, started_at)
+            VALUES (?, ?, ?, ?, ?, 'running', ?)
+            """,
+            (algorithm, data_source, test_split, random_state, max_features, utc_now_iso())
+        ).lastrowid
+        
+        # Prepare training data
+        if data_source == "scan_data":
+            # Use existing scan data
+            scans = query_all(
+                "SELECT original_message, prediction_label FROM scans WHERE original_message IS NOT NULL AND prediction_label IS NOT NULL"
+            )
+            if len(scans) < 100:
+                raise Exception("Insufficient scan data for training. Need at least 100 records.")
+            
+            messages = [scan["original_message"] for scan in scans]
+            labels = [1 if scan["prediction_label"] == "Phishing" else 0 for scan in scans]
+            
+        elif data_source == "upload_file":
+            # Use uploaded file
+            upload = request.files.get("training_file")
+            if not upload or not upload.filename:
+                raise Exception("Training file is required when using upload option.")
+            
+            # Read uploaded CSV
+            df = pd.read_csv(upload)
+            if "message" not in df.columns or "label" not in df.columns:
+                raise Exception("CSV must have 'message' and 'label' columns.")
+            
+            messages = df["message"].tolist()
+            labels = [1 if str(label).lower() in ["phishing", "phish", "1"] else 0 for label in df["label"]]
+        
+        # Backup current model if requested
+        if backup_current:
+            artifacts_dir = os.path.join(os.path.dirname(__file__), "..", "artifacts")
+            backup_dir = os.path.join(artifacts_dir, "backups")
+            os.makedirs(backup_dir, exist_ok=True)
+            
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            if os.path.exists(os.path.join(artifacts_dir, "phishing_detector.joblib")):
+                import shutil
+                shutil.copy2(
+                    os.path.join(artifacts_dir, "phishing_detector.joblib"),
+                    os.path.join(backup_dir, f"phishing_detector_backup_{timestamp}.joblib")
+                )
+        
+        # Split data
+        X_train, X_test, y_train, y_test = train_test_split(
+            messages, labels, test_size=test_split, random_state=random_state, stratify=labels
+        )
+        
+        # Vectorize text
+        vectorizer = TfidfVectorizer(max_features=max_features, stop_words="english", lowercase=True)
+        X_train_vec = vectorizer.fit_transform(X_train)
+        X_test_vec = vectorizer.transform(X_test)
+        
+        # Select and train model
+        if algorithm == "logistic_regression":
+            model = LogisticRegression(random_state=random_state, max_iter=1000)
+        elif algorithm == "random_forest":
+            model = RandomForestClassifier(n_estimators=100, random_state=random_state)
+        elif algorithm == "svm":
+            model = SVC(probability=True, random_state=random_state)
+        elif algorithm == "naive_bayes":
+            model = MultinomialNB()
+        else:
+            raise Exception(f"Unknown algorithm: {algorithm}")
+        
+        # Train model
+        model.fit(X_train_vec, y_train)
+        
+        # Make predictions
+        y_pred = model.predict(X_test_vec)
+        y_pred_proba = model.predict_proba(X_test_vec)[:, 1]
+        
+        # Calculate metrics
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred)
+        recall = recall_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred)
+        roc_auc = roc_auc_score(y_test, y_pred_proba)
+        cm = confusion_matrix(y_test, y_pred).tolist()
+        
+        # Save new model and vectorizer
+        artifacts_dir = os.path.join(os.path.dirname(__file__), "..", "artifacts")
+        os.makedirs(artifacts_dir, exist_ok=True)
+        
+        model_data = {
+            "model": model,
+            "vectorizer": vectorizer,
+            "algorithm": algorithm,
+            "trained_at": utc_now_iso(),
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "roc_auc": roc_auc,
+            "confusion_matrix": cm,
+            "train_size": len(X_train),
+            "test_size": len(X_test),
+            "total_records": len(messages)
+        }
+        
+        joblib.dump(model_data, os.path.join(artifacts_dir, "phishing_detector.joblib"))
+        
+        # Update metrics file
+        metrics_data = {
+            "model_type": algorithm.replace("_", " ").title(),
+            "trained_at": utc_now_iso(),
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1_score": f1,
+            "roc_auc": roc_auc,
+            "confusion_matrix": cm,
+            "train_size": len(X_train),
+            "test_size": len(X_test),
+            "total_records": len(messages)
+        }
+        
+        with open(os.path.join(artifacts_dir, "metrics.json"), "w") as f:
+            json.dump(metrics_data, f, indent=2)
+        
+        # Update training run record
+        execute(
+            """
+            UPDATE training_runs SET 
+                status = 'completed',
+                accuracy = ?,
+                precision = ?,
+                recall = ?,
+                f1_score = ?,
+                roc_auc = ?,
+                confusion_matrix = ?,
+                train_size = ?,
+                test_size = ?,
+                total_records = ?,
+                trained_at = ?,
+                completed_at = ?
+            WHERE id = ?
+            """,
+            (accuracy, precision, recall, f1, roc_auc, json.dumps(cm), 
+             len(X_train), len(X_test), len(messages), utc_now_iso(), utc_now_iso(), training_id)
+        )
+        
+        log_action(
+            session["user_id"], 
+            "model_retrain", 
+            "model", 
+            "warning", 
+            f"Model retrained with {algorithm} algorithm. Accuracy: {accuracy:.3f}"
+        )
+        
+        flash(
+            f"Model retraining completed successfully! New accuracy: {accuracy:.1%}. "
+            f"The updated model is now active and ready for use.", 
+            "success"
+        )
+        
+    except Exception as e:
+        # Update training run as failed
+        if 'training_id' in locals():
+            execute(
+                "UPDATE training_runs SET status = 'failed', error_message = ?, completed_at = ? WHERE id = ?",
+                (str(e), utc_now_iso(), training_id)
+            )
+        
+        log_action(
+            session["user_id"], 
+            "model_retrain_failed", 
+            "model", 
+            "error", 
+            f"Model retraining failed: {str(e)}"
+        )
+        
+        flash(f"Model retraining failed: {str(e)}", "danger")
+    
+    return redirect(url_for("main.admin_model"))
 
 @main_bp.route("/admin/users/export/<format>")
 @admin_required

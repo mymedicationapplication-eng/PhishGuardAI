@@ -20,7 +20,13 @@
                             <textarea class="form-control" name="message" rows="14" placeholder="Paste email, SMS, or suspicious text here..." required style="font-size: .95rem;">{{ message }}</textarea>
                             <div class="form-text mt-2">The AI model will analyze the content for phishing indicators, suspicious URLs, and risk patterns</div>
                         </div>
-                        <button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-shield-check me-2"></i>Analyze Message</button>
+                        <button class="btn btn-primary btn-lg user-action-btn" type="submit" id="scanBtn">
+                            <span class="btn-text"><i class="bi bi-shield-check me-2"></i>Analyze Message</span>
+                            <span class="btn-spinner d-none">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Analyzing...
+                            </span>
+                        </button>
                     </form>
                 </div>
             </div>

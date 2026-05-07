@@ -1,4 +1,10 @@
 (function () {
+    // Prevent multiple initializations
+    if (window.phishguardInitialized) {
+        return;
+    }
+    window.phishguardInitialized = true;
+
     // Define showToast globally before DOMContentLoaded
     window.showToast = function(message, category = 'info') {
         const container = document.getElementById('toast-container');
@@ -199,6 +205,12 @@
                     if (firstInvalid) {
                         firstInvalid.focus();
                     }
+                } else {
+                    // Show spinner on valid form submission
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        showButtonSpinner(submitBtn);
+                    }
                 }
             });
             
@@ -211,6 +223,54 @@
                 input.addEventListener('focus', function() {
                     this.classList.remove('is-invalid');
                 });
+            });
+        });
+
+        // Button spinner functionality
+        function showButtonSpinner(button) {
+            const btnText = button.querySelector('.btn-text');
+            const btnSpinner = button.querySelector('.btn-spinner');
+            
+            if (btnText && btnSpinner) {
+                btnText.classList.add('d-none');
+                btnSpinner.classList.remove('d-none');
+                button.disabled = true;
+            }
+        }
+
+        function hideButtonSpinner(button) {
+            const btnText = button.querySelector('.btn-text');
+            const btnSpinner = button.querySelector('.btn-spinner');
+            
+            if (btnText && btnSpinner) {
+                btnText.classList.remove('d-none');
+                btnSpinner.classList.add('d-none');
+                button.disabled = false;
+            }
+        }
+
+        // Add spinner to all buttons with IDs
+        const buttonIds = ['scanBtn', 'batchBtn', 'profileBtn', 'loginBtn', 'registerBtn', 'forgotBtn', 'retrainBtn'];
+        buttonIds.forEach(id => {
+            const button = document.getElementById(id);
+            if (button) {
+                button.addEventListener('click', function(e) {
+                    // Only show spinner if form is valid or it's not a form submission
+                    const form = this.closest('form');
+                    if (!form || form.checkValidity()) {
+                        setTimeout(() => showButtonSpinner(this), 100);
+                    }
+                });
+            }
+        });
+
+        // Hide spinners on page load (in case of back navigation)
+        window.addEventListener('pageshow', function() {
+            buttonIds.forEach(id => {
+                const button = document.getElementById(id);
+                if (button) {
+                    hideButtonSpinner(button);
+                }
             });
         });
     });

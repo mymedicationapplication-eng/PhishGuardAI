@@ -60,6 +60,12 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 CREATE TABLE IF NOT EXISTS training_runs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    algorithm TEXT NOT NULL,
+    data_source TEXT NOT NULL,
+    test_split REAL,
+    random_state INTEGER,
+    max_features INTEGER,
+    status TEXT NOT NULL DEFAULT 'running',
     accuracy REAL,
     precision REAL,
     recall REAL,
@@ -68,9 +74,11 @@ CREATE TABLE IF NOT EXISTS training_runs (
     train_size INTEGER,
     test_size INTEGER,
     total_records INTEGER,
-    model_type TEXT,
+    confusion_matrix TEXT,
+    error_message TEXT,
+    started_at TEXT NOT NULL,
     trained_at TEXT,
-    confusion_matrix TEXT
+    completed_at TEXT
 );
 """
 
@@ -131,8 +139,6 @@ def seed_default_admin():
             ),
         )
         log_action(None, "seed_admin", "user", "info", "Default admin account created.")
-    
-    # Create default regular user
     existing_user = query_one("SELECT id FROM users WHERE email = ?", ("Fatimahali@gmail.com",))
     if not existing_user:
         salt, hashed = pbkdf2_hash("Fatimahali@1234")

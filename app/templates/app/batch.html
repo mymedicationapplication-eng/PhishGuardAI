@@ -23,7 +23,13 @@
                     </div>
                 </div>
                 <div class="col-lg-4 d-grid">
-                    <button class="btn btn-primary btn-lg"><i class="bi bi-play-fill me-2"></i>Process Batch</button>
+                    <button class="btn btn-primary btn-lg user-action-btn" id="batchBtn">
+                        <span class="btn-text"><i class="bi bi-play-fill me-2"></i>Process Batch</span>
+                        <span class="btn-spinner d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Processing...
+                        </span>
+                    </button>
                 </div>
             </form>
         </div>
